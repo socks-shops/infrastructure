@@ -46,7 +46,15 @@ resource "aws_docdb_cluster" "docdb_cluster" {
   preferred_backup_window = var.preferred_backup_window
   db_subnet_group_name    = aws_docdb_subnet_group.docdb_subnet_group.name
   vpc_security_group_ids  = var.docdb_sg #[aws_security_group.docdb_sg.id]
+
+  # Ignorer le snapshot final lors de la destruction
+  skip_final_snapshot     = true
+
+  # S'assurer qu'il n'y a pas de snapshot final
+  #final_snapshot_identifier = ""  # Force la suppression sans snapshot final
 }
+
+
 
 resource "aws_docdb_cluster_instance" "docdb_instance" {
   count              = var.instance_count

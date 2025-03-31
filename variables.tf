@@ -8,7 +8,7 @@ variable "aws_account_id" {
 }
 
 variable "iam_role_name" {
-  default     = "iam_role_sockshop"
+  default = "iam_role_sockshop"
 }
 
 variable "vpc_cidr" {
@@ -16,7 +16,7 @@ variable "vpc_cidr" {
 }
 
 variable "worker_node_instance_type" {
-  default = ["t3.medium"]
+  default = ["m5.xlarge"]
 }
 
 variable "eks_version" {
@@ -25,6 +25,11 @@ variable "eks_version" {
 
 variable "docdb_instance_class" {
   default = "db.t3.medium"
+}
+
+variable "eks_key_pair" {
+  description = "Nom de la clé SSH"
+  default     = "sockshop-keypair" # Le nom de la clé SSH
 }
 
 variable "nbr_instance_docdb" {

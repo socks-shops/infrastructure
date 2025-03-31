@@ -51,7 +51,7 @@ resource "aws_iam_role" "worker" {
 
 #*****************************************************************#
 # Création de la politique IAM pour accéder aux paramètres SSM
-resource "aws_iam_policy" "docdb_ssm_policy" {
+/*resource "aws_iam_policy" "docdb_ssm_policy" {
   name        = "DocDBParameterPolicy"
   description = "Policy to manage DocumentDB credentials in SSM Parameter Store"
 
@@ -70,6 +70,14 @@ resource "aws_iam_policy" "docdb_ssm_policy" {
     ]
   })
 }
+*/
+
+resource "aws_iam_policy" "docdb_ssm_policy" {
+  name        = "DocDBParameterPolicy"
+  description = "Policy to manage DocumentDB credentials in SSM Parameter Store"
+  policy = file("${path.module}/docdb_ssm_policy.json")
+}
+
 
 # Attachement de la politique IAM au rôle master du cluster EKS
 resource "aws_iam_role_policy_attachment" "docdb_ssm_attachment" {
