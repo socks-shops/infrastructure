@@ -53,7 +53,7 @@ variable "backup_time_window" {
 }
 
 variable "desired_worker_node" {
-  default = 2
+  default = 1
 }
 
 variable "max_worker_node" {
@@ -61,7 +61,7 @@ variable "max_worker_node" {
 }
 
 variable "min_worker_node" {
-  default = 2
+  default = 1
 }
 
 variable "subnet_cidr" {

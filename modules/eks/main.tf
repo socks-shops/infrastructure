@@ -32,6 +32,33 @@ resource "aws_iam_role_policy_attachment" "AmazonEKSVPCResourceController" {
 }
 
 
+
+
+# Rôle IAM administrateur complet
+resource "aws_iam_role" "full_admin" {
+  name = "full_admin_role"
+
+  assume_role_policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": {
+          "AWS": "arn:aws:iam::${var.account_id}:root"  # Utilise ton propre ARN de compte ici
+        },
+        "Action": "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+# Attacher la politique d'administration complète (AdministratorAccess) à ce rôle
+resource "aws_iam_role_policy_attachment" "full_admin_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+  role       = aws_iam_role.full_admin.name
+}
+
+
 resource "aws_iam_role" "worker" {
   name = "${var.iam_role_name}-worker"
 
@@ -156,7 +183,7 @@ resource "aws_iam_instance_profile" "worker" {
 }
 
 #Creation EKS
-resource "aws_eks_cluster" "eks" {
+resource "aws_eks_cluster" "sockshop-eks" {
   name     = "${var.cluster_name}-VPC"
   role_arn = aws_iam_role.master.arn
   version  = var.eks_version
@@ -177,7 +204,7 @@ resource "aws_eks_cluster" "eks" {
 }
 
 resource "aws_eks_node_group" "node-grp" {
-  cluster_name    = aws_eks_cluster.eks.name
+  cluster_name    = aws_eks_cluster.sockshop-eks.name
   node_group_name = var.eks_node_group_name
   node_role_arn   = aws_iam_role.worker.arn
   subnet_ids      = var.subnet_ids
