@@ -70,3 +70,36 @@ resource "aws_security_group" "rds_sg" {
     Name = "rds-sg"
   }
 }
+
+resource "aws_security_group" "alb_sg" {
+  name_prefix = "alb-sg-"
+  description = "Security group for Application Load Balancer"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    description = "Allow HTTP traffic"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = [var.alb_allowed_cidr]
+  }
+
+  ingress {
+    description = "Allow HTTPS traffic"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [var.alb_allowed_cidr]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = [var.cidr_all]
+  }
+
+  tags = {
+    Name = "alb-sg"
+  }
+}
