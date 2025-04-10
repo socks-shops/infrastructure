@@ -4,7 +4,7 @@ variable "region" {
 }
 
 variable "aws_account_id" {
-  default = "AIDAYHJANKMVIQU7X5WBQ"
+  default = "471744311643"
 }
 
 variable "iam_role_name" {
@@ -101,7 +101,7 @@ variable "target_group_port" {
 variable "certificate_arn" {
   description = "ARN du certificat SSL pour HTTPS"
   type        = string
-  default     = "value"
+  default     = "arn:aws:acm:us-east-1:471744311643:certificate/a230a5d9-f1c9-4e21-b87e-4ad4ec11901e"
 }
 
 

@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "eu-west-3"
+  region = "us-east-1"
 }
 
 terraform {
@@ -119,3 +119,16 @@ output "vpc_id" {
 output "eks_cluster_name" {
   value = module.eks.cluster_name
 }
+
+output "OIDC" {
+  value = module.eks.oidc_provider_arn
+}
+
+output "alb_dns_name" {
+  value = module.alb.alb_dns_name
+}
+
+output "alb_z_id" {
+  value = module.alb.alb_zone_id
+}
+

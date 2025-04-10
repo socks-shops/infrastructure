@@ -5,10 +5,10 @@ resource "aws_security_group" "eks_sg" {
 
   ingress {
     description = "Allow traffic from within VPC"
-    from_port   = 0
-    to_port     = 65535
+    from_port   = 30000
+    to_port     = 32767
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr]
+    security_groups = [aws_security_group.alb_sg.id]
   }
 
   egress {
@@ -32,7 +32,7 @@ resource "aws_security_group" "docdb_sg" {
     from_port   = 27017
     to_port     = 27017
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr]
+    security_groups = [aws_security_group.eks_sg.id]
   }
 
   egress {
