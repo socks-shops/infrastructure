@@ -12,14 +12,6 @@ resource "aws_lb" "alb" {
   }
 }
 
-resource "aws_lb_target_group" "alb_target_group" {
-  name        = var.target_group_name
-  port        = var.target_group_port
-  protocol    = "HTTP"
-  vpc_id      = var.vpc_id
-  target_type = "ip" # Mode IP pour fonctionner avec EKS
-}
-
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.alb.arn
   port              = 80
@@ -42,7 +34,13 @@ resource "aws_lb_listener" "https" {
   certificate_arn   = var.certificate_arn
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.alb_target_group.arn
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "Not configured by Ingress yet"
+      status_code  = "404"
+    }
   }
 }
+

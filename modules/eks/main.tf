@@ -52,19 +52,19 @@ resource "aws_iam_role" "worker" {
 
 
 
-#Création de rôle IAM pour AWS Load Balancer Controller
+# #Création de rôle IAM pour AWS Load Balancer Controller
 resource "aws_iam_role" "aws_lb_controller" {
   name = "${var.cluster_name}-aws-lb-controller-role"
 
   assume_role_policy = jsonencode({
-    Version = "2012-10-17",
+    Version = "2012-10-17"
     Statement = [
       {
-        Effect = "Allow",
+        Effect = "Allow"
         Principal = {
           Federated = "arn:aws:iam::${var.account_id}:oidc-provider/${replace(aws_eks_cluster.sockshop-eks.identity[0].oidc[0].issuer, "https://", "")}"
-        },
-        Action = "sts:AssumeRoleWithWebIdentity",
+        }
+        Action = "sts:AssumeRoleWithWebIdentity"
         Condition = {
           "StringEquals" = {
             "${replace(aws_eks_cluster.sockshop-eks.identity[0].oidc[0].issuer, "https://", "")}:sub" = "system:serviceaccount:dev:aws-load-balancer-controller"
@@ -73,10 +73,15 @@ resource "aws_iam_role" "aws_lb_controller" {
       }
     ]
   })
+
+  depends_on = [aws_iam_openid_connect_provider.eks_oidc_provider, aws_eks_node_group.node-grp,
+  aws_eks_cluster.sockshop-eks
+  ] 
 }
 
+
 resource "aws_iam_openid_connect_provider" "eks_oidc_provider" {
-  url = "https://oidc.eks.us-east-1.amazonaws.com/id/2131019B0981E034A0CA78D3E75EA227"
+  url = aws_eks_cluster.sockshop-eks.identity[0].oidc[0].issuer
 
   client_id_list = ["sts.amazonaws.com"]
 
@@ -93,18 +98,21 @@ resource "aws_iam_policy" "aws_lb_controller" {
 
   # Charge la politique depuis le fichier JSON externe
   policy = file("${path.module}/aws_lb_controller_policy.json")
+  depends_on = [aws_eks_cluster.sockshop-eks, aws_eks_node_group.node-grp]
 }
 
 resource "aws_iam_role_policy_attachment" "aws_lb_controller_attachment" {
   policy_arn = aws_iam_policy.aws_lb_controller.arn
   role       = aws_iam_role.aws_lb_controller.name
+  depends_on = [aws_eks_cluster.sockshop-eks, aws_eks_node_group.node-grp]
 }
 
-# Création du namespace "dev"
+#Création du namespace "dev"
 resource "kubernetes_namespace" "dev" {
   metadata {
     name = "dev"
   }
+  depends_on = [aws_eks_cluster.sockshop-eks, aws_eks_node_group.node-grp]
 }
 
 resource "kubernetes_service_account" "aws_lb_controller" {
@@ -116,7 +124,7 @@ resource "kubernetes_service_account" "aws_lb_controller" {
     }
   }
 
-  depends_on = [aws_eks_cluster.sockshop-eks]
+  depends_on = [aws_eks_cluster.sockshop-eks, aws_eks_node_group.node-grp]
 }
 
 resource "helm_release" "aws_lb_controller" {
@@ -140,7 +148,8 @@ resource "helm_release" "aws_lb_controller" {
 
   depends_on = [
     kubernetes_service_account.aws_lb_controller,
-    aws_iam_role_policy_attachment.aws_lb_controller_attachment
+    aws_iam_role_policy_attachment.aws_lb_controller_attachment,
+    aws_eks_cluster.sockshop-eks, aws_eks_node_group.node-grp
   ]
 }
 
@@ -351,25 +360,6 @@ resource "aws_eks_node_group" "node-grp" {
 # }
 
 # Provider Kubernetes pour interagir avec le cluster EKS
-provider "kubernetes" {
-  host                   = aws_eks_cluster.sockshop-eks.endpoint
-  cluster_ca_certificate = base64decode(aws_eks_cluster.sockshop-eks.certificate_authority[0].data)
-  token                  = data.aws_eks_cluster_auth.auth.token
-}
-
-# Création d'une ressource pour obtenir un token d'authentification pour le cluster EKS
-data "aws_eks_cluster_auth" "auth" {
-  name = aws_eks_cluster.sockshop-eks.name
-}
-
-# Provider Helm pour gérer l'installation du chart AWS Load Balancer Controller
-provider "helm" {
-  kubernetes {
-    host                   = aws_eks_cluster.sockshop-eks.endpoint
-    cluster_ca_certificate = base64decode(aws_eks_cluster.sockshop-eks.certificate_authority[0].data)
-    token                  = data.aws_eks_cluster_auth.auth.token
-  }
-}
 
 # Ressource Helm pour installer le AWS Load Balancer Controller
 /*resource "helm_release" "aws_lb_controller" {
@@ -391,7 +381,6 @@ provider "helm" {
   
   depends_on = [aws_eks_cluster.sockshop-eks]  # Assure que le cluster EKS est déjà créé avant l'installation du chart
 }*/
-
 
 
 

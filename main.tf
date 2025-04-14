@@ -2,6 +2,27 @@ provider "aws" {
   region = "us-east-1"
 }
 
+provider "kubernetes" {
+  host                   = module.eks.cluster_endpoint
+  cluster_ca_certificate = base64decode(module.eks.cluster_auth)
+  token                  = data.aws_eks_cluster_auth.auth.token
+
+}
+
+# Création d'une ressource pour obtenir un token d'authentification pour le cluster EKS
+data "aws_eks_cluster_auth" "auth" {
+  name = module.eks.cluster_name
+}
+
+# Provider Helm pour gérer l'installation du chart AWS Load Balancer Controller
+provider "helm" {
+  kubernetes {
+    host                   = module.eks.cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks.cluster_auth)
+    token                  = data.aws_eks_cluster_auth.auth.token
+  }
+}
+
 terraform {
   backend "s3" {
     bucket = "sockshop-tfstate-datascientest"
@@ -31,10 +52,9 @@ module "network" {
   private_az2          = var.availability_zone_2
 }
 
-
 module "eks" {
   source                        = "./modules/eks"
-  subnet_ids                    = module.network.private_subnet_ids
+  subnet_ids                    = module.network.public_subnet_ids
   cluster_name                  = "sockshop-EKS"
   eks_node_group_name           = "node_group_sockshop"
   iam_role_name                 = "iam_role_sockshop"
@@ -54,26 +74,26 @@ module "eks" {
 
 
 
-module "documentdb" {
-  source                  = "./modules/documentdb"
-  vpc_id                  = module.network.vpc_id
-  vpc_cidr                = var.vpc_cidr
-  private_subnet_ids      = module.network.private_subnet_ids
-  cluster_identifier      = var.docdb_cluster_id
-  backup_retention_period = var.backup_docdb_period
-  preferred_backup_window = var.backup_time_window
-  instance_class          = var.docdb_instance_class
-  instance_count          = var.nbr_instance_docdb
-  docdb_sg                = [module.securitygroup.docdb_sg_id]
-}
+# module "documentdb" {
+#   source                  = "./modules/documentdb"
+#   vpc_id                  = module.network.vpc_id
+#   vpc_cidr                = var.vpc_cidr
+#   private_subnet_ids      = module.network.private_subnet_ids
+#   cluster_identifier      = var.docdb_cluster_id
+#   backup_retention_period = var.backup_docdb_period
+#   preferred_backup_window = var.backup_time_window
+#   instance_class          = var.docdb_instance_class
+#   instance_count          = var.nbr_instance_docdb
+#   docdb_sg                = [module.securitygroup.docdb_sg_id]
+# }
 
-module "rds" {
-  source                  = "./modules/rds"
-  vpc_id                  = module.network.vpc_id
-  rds_sg_id               = module.securitygroup.rds_sg_id
-  private_subnet_ids      = module.network.private_subnet_ids
-  backup_retention_period = var.backup_rds_period
-}
+# module "rds" {
+#   source                  = "./modules/rds"
+#   vpc_id                  = module.network.vpc_id
+#   rds_sg_id               = module.securitygroup.rds_sg_id
+#   private_subnet_ids      = module.network.private_subnet_ids
+#   backup_retention_period = var.backup_rds_period
+# }
 
 module "securitygroup" {
   source   = "./modules/securitygroup"
@@ -83,25 +103,37 @@ module "securitygroup" {
 }
 
 
-module "alb" {
-  source             = "./modules/alb"
-  alb_name           = var.alb_name
-  alb_security_group = module.securitygroup.alb_sg_id
-  public_subnets     = module.network.public_subnet_ids
-  vpc_id             = module.network.vpc_id
-  target_group_name  = var.target_group_name
-  target_group_port  = var.target_group_port
-  certificate_arn    = var.certificate_arn
-}
+# module "alb" {
+#   source             = "./modules/alb"
+#   alb_name           = var.alb_name
+#   alb_security_group = module.securitygroup.alb_sg_id
+#   public_subnets     = module.network.public_subnet_ids
+#   vpc_id             = module.network.vpc_id
+#   certificate_arn    = var.certificate_arn
+# }
 
 
-module "route53" {
-  source         = "./modules/route53"
-  domain_name    = var.domain_name
-  subdomain_name = var.subdomain_name
-  alb_dns_name   = module.alb.alb_dns_name
-  alb_zone_id    = module.alb.alb_zone_id
+# module "route53" {
+#   source         = "./modules/route53"
+#   domain_name    = var.domain_name
+#   subdomain_name = var.subdomain_name
+#   alb_dns_name   = module.alb.alb_dns_name
+#   alb_zone_id    = module.alb.alb_zone_id
+# }
+
+module "eks_serviceaccount_role" {
+  source               = "./modules/eks_serviceaccount_role"
+  velero_bucket_name   = var.buket_s3_velero
+  cluster_name         = module.eks.cluster_name
+  account_id           = var.aws_account_id
+  region               = var.region
+  oidc_provider        = module.eks.oidc_provider_arn
+  eks_cluster_endpoint = module.eks.cluster_endpoint
+  eks_cluster_auth     = module.eks.cluster_auth
+  eks_token            = data.aws_eks_cluster_auth.auth.token
+  depends_on           = [module.eks]
 }
+
 
 
 # Module KeyPair
@@ -124,11 +156,11 @@ output "OIDC" {
   value = module.eks.oidc_provider_arn
 }
 
-output "alb_dns_name" {
-  value = module.alb.alb_dns_name
-}
+# output "alb_dns_name" {
+#   value = module.alb.alb_dns_name
+# }
 
-output "alb_z_id" {
-  value = module.alb.alb_zone_id
-}
+# output "alb_z_id" {
+#   value = module.alb.alb_zone_id
+# }
 

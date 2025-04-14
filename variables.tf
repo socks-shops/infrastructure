@@ -16,7 +16,7 @@ variable "vpc_cidr" {
 }
 
 variable "worker_node_instance_type" {
-  default = ["m5.xlarge"]
+  default = ["m5.2xlarge"]
 }
 
 variable "eks_version" {
@@ -88,16 +88,6 @@ variable "alb_name" {
 }
 
 
-variable "target_group_name" {
-  description = "Nom du Target Group"
-  default     = "socks-shop-frontend"
-}
-
-variable "target_group_port" {
-  description = "Port du Target Group"
-  default     = 8080 # à remplacer 
-}
-
 variable "certificate_arn" {
   description = "ARN du certificat SSL pour HTTPS"
   type        = string
@@ -116,3 +106,27 @@ variable "subdomain_name" {
   type        = string
   default     = "www.datascientets-socks-shop.com"
 }
+
+variable "buket_s3_velero" {
+  default = "sockshop-velero-backups-bucket"
+}
+
+variable "mongodb_backup_bucket_name" {
+  default = "sockshop-mongo-backups-bucket"
+}
+
+variable "mysql_backup_bucket_name" {
+  default = "sockshop-mysql-backups-bucket"
+}
+
+variable "velero_bucket_name" {
+  default = "sockshop-velero-backups-bucket"
+}
+
+variable "common_kms_key_id" {
+  type        = string
+  description = "ARN de la clé KMS commune pour le chiffrement des sauvegardes et autres données sensibles."
+  default     = "sockshop-velero-backups-bucket"
+}
+
+

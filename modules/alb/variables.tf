@@ -18,15 +18,6 @@ variable "vpc_id" {
   type        = string
 }
 
-variable "target_group_name" {
-  description = "Nom du Target Group"
-  type        = string
-}
-
-variable "target_group_port" {
-  description = "Port du Target Group"
-  type        = number
-}
 
 variable "certificate_arn" {
   description = "ARN du certificat SSL pour HTTPS"
