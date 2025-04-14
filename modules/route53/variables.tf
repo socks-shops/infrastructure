@@ -13,6 +13,7 @@ variable "subdomain_name" {
 variable "alb_dns_name" {
   description = "Nom DNS de l'ALB (récupéré après la création de l'ALB)"
   type        = string
+  default = "dns_name"
 }
 
 variable "alb_zone_id" {
