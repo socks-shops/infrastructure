@@ -13,9 +13,3 @@ variable "cidr_all" {
   type        = string
   default     = "0.0.0.0/0"
 }
-
-variable "alb_allowed_cidr" {
-  description = "CIDR block allowed to access the ALB (Default: open to all)"
-  type        = string
-  default     = "0.0.0.0/0"
-}
