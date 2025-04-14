@@ -8,15 +8,15 @@ resource "aws_db_subnet_group" "mysql_subnet_group" {
 }
 
 data "aws_ssm_parameter" "rds_db_name" {
-  name = "rds-db-name"
+  name = "rds-db_name"
 }
 
 data "aws_ssm_parameter" "rds_db_username" {
-  name = "rds-db-username"
+  name = "rds-db_username"
 }
 
 data "aws_ssm_parameter" "rds_db_password" {
-  name = "rds-db-password"
+  name = "rds-db_password"
 }
 
 

@@ -1,10 +1,10 @@
 variable "region" {
   description = "AWS Region"
-  default     = "eu-west-3"
+  default     = "us-east-1"
 }
 
 variable "aws_account_id" {
-  default = "AIDAYHJANKMVIQU7X5WBQ"
+  default = "471744311643"
 }
 
 variable "iam_role_name" {
@@ -53,7 +53,7 @@ variable "backup_time_window" {
 }
 
 variable "desired_worker_node" {
-  default = 2
+  default = 1
 }
 
 variable "max_worker_node" {
@@ -61,7 +61,7 @@ variable "max_worker_node" {
 }
 
 variable "min_worker_node" {
-  default = 2
+  default = 1
 }
 
 variable "subnet_cidr" {
@@ -73,10 +73,46 @@ variable "cidr_all" {
 }
 
 variable "availability_zone_1" {
-  default = "eu-west-3a"
+  default = "us-east-1a"
 }
 
 variable "availability_zone_2" {
-  default = "eu-west-3b"
+  default = "us-east-1b"
 }
 
+
+#**************** ALB Variables **************************
+variable "alb_name" {
+  description = "Nom du Load Balancer"
+  default     = "socks-shop-lb"
+}
+
+
+variable "target_group_name" {
+  description = "Nom du Target Group"
+  default     = "socks-shop-frontend"
+}
+
+variable "target_group_port" {
+  description = "Port du Target Group"
+  default     = 8080 # à remplacer 
+}
+
+variable "certificate_arn" {
+  description = "ARN du certificat SSL pour HTTPS"
+  type        = string
+  default     = "arn:aws:acm:us-east-1:471744311643:certificate/a230a5d9-f1c9-4e21-b87e-4ad4ec11901e"
+}
+
+
+#route 53 
+variable "domain_name" {
+  description = "Nom de domaine"
+  default     = "datascientets-socks-shop.com"
+}
+
+variable "subdomain_name" {
+  description = "Sous-domaine à créer"
+  type        = string
+  default     = "www.datascientets-socks-shop.com"
+}

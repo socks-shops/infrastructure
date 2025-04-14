@@ -1,12 +1,12 @@
 provider "aws" {
-  region = "eu-west-3"
+  region = "us-east-1"
 }
 
 terraform {
   backend "s3" {
-    bucket = "sockshop-tfstate-mahdi"
+    bucket = "sockshop-tfstate-datascientest"
     key    = "sockshop.tfstate"
-    region = "eu-west-3"
+    region = "us-east-1"
   }
 }
 
@@ -83,6 +83,27 @@ module "securitygroup" {
 }
 
 
+module "alb" {
+  source             = "./modules/alb"
+  alb_name           = var.alb_name
+  alb_security_group = module.securitygroup.alb_sg_id
+  public_subnets     = module.network.public_subnet_ids
+  vpc_id             = module.network.vpc_id
+  target_group_name  = var.target_group_name
+  target_group_port  = var.target_group_port
+  certificate_arn    = var.certificate_arn
+}
+
+
+module "route53" {
+  source         = "./modules/route53"
+  domain_name    = var.domain_name
+  subdomain_name = var.subdomain_name
+  alb_dns_name   = module.alb.alb_dns_name
+  alb_zone_id    = module.alb.alb_zone_id
+}
+
+
 # Module KeyPair
 module "keypair" {
   source          = "./modules/keypair"
@@ -98,3 +119,16 @@ output "vpc_id" {
 output "eks_cluster_name" {
   value = module.eks.cluster_name
 }
+
+output "OIDC" {
+  value = module.eks.oidc_provider_arn
+}
+
+output "alb_dns_name" {
+  value = module.alb.alb_dns_name
+}
+
+output "alb_z_id" {
+  value = module.alb.alb_zone_id
+}
+
