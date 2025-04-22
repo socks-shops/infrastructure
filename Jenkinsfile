@@ -3,8 +3,6 @@ pipeline {
     agent {
         docker { image 'jenkins/jnlp-agent-terraform'}
     }
-    environment {
-        }
     stages {
 
         stage('Init') {
