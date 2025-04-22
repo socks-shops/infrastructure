@@ -1,8 +1,5 @@
-// test
 pipeline {
-    agent {
-        docker { image 'jenkins/jnlp-agent-terraform'}
-    }
+    agent any
     stages {
 
         stage('Init') {
