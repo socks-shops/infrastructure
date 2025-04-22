@@ -47,26 +47,26 @@ pipeline {
             }
         }
 
-        stage('Apply') {
-            steps {
-                withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
-                    sh """
-                    terraform apply --auto-approve
-                    """
-                }
-            }
-        }
+        // stage('Apply') {
+        //     steps {
+        //         withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
+        //             sh """
+        //             terraform apply --auto-approve
+        //             """
+        //         }
+        //     }
+        // }
 
-        stage('Destroy') {
-            steps {
-                withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
-                    input message: 'Lancer le destroy?', ok: 'Oui'
-                    sh """
-                    terraform destroy --auto-approve
-                    """
-                }
-            }
-        }
+        // stage('Destroy') {
+        //     steps {
+        //         withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
+        //             input message: 'Lancer le destroy?', ok: 'Oui'
+        //             sh """
+        //             terraform destroy --auto-approve
+        //             """
+        //         }
+        //     }
+        // }
 
     }
 }
